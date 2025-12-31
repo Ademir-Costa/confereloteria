@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conferência de Jogos - Loteria Federal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary-blue: #1e3a8a;
+            --secondary-blue: #3b82f6;
+            --light-blue: #93c5fd;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: rgba(31, 38, 135, 0.37);
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #93c5fd 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px var(--glass-shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .upload-area.dragover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--secondary-blue);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--light-blue);
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .file-info.show {
+            display: flex;
+        }
+
+        .file-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .file-size {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .remove-file {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .remove-file:hover {
+            background: rgba(239, 68, 68, 0.4);
+            transform: scale(1.1);
+        }
+
+        .upload-button {
+            background: white;
+            color: var(--primary-blue);
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .upload-button:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .result-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .result-input {
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary-blue);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .result-input:focus {
+            outline: none;
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+        }
+
+        .check-button {
+            background: white;
+            color: var(--primary-blue);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .check-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .check-button:active {
+            transform: translateY(0);
+        }
+
+        .check-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .games-section {
+            margin-bottom: 30px;
+        }
+
+        .games-table-container {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            color: #333;
+            font-weight: bold;
+        }
+
+        .game-row:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .number-cell {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-blue);
+            color: white;
+            margin: 2px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .number-cell.hit {
+            background-color: var(--success-green);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .game-result {
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+
+        .hit-3 {
+            color: var(--warning-orange);
+        }
+
+        .hit-4 {
+            color: #f97316;
+        }
+
+        .hit-5 {
+            color: var(--danger-red);
+        }
+
+        .hit-6 {
+            color: var(--success-green);
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+
+        .winner-message {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--success-green);
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .winner-message.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-box {
+            background: var(--glass-bg);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            min-width: 150px;
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--glass-border);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        .sample-download {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .download-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .download-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .glass-card {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .result-input {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+            
+            .number-cell {
+                width: 35px;
+                height: 35px;
+                line-height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .stat-box {
+                min-width: 120px;
+                padding: 15px;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="glass-card">
+            <header>
+                <h1><i class="fas fa-ticket-alt"></i> Conferência de Jogos</h1>
+                <p class="subtitle">Loteria Federal - Carregue sua planilha e confira seus jogos</p>
+            </header>
+
+            <div class="instructions">
+                <h3><i class="fas fa-info-circle"></i> Instruções:</h3>
+                <p>1. Faça o download do modelo de planilha ou use a sua própria</p>
+                <p>2. Faça o upload da planilha com seus jogos (6 números por linha)</p>
+                <p>3. Digite os 6 números do sorteio nos campos abaixo</p>
+                <p>4. Clique em "Conferir Jogos" para verificar seus bilhetes</p>
+                <p>5. Números acertados aparecerão em verde com animações especiais</p>
+            </div>
+
+            <div class="upload-section glass-card">
+                <h2><i class="fas fa-file-upload"></i> Upload da Planilha</h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-file-excel"></i>
+                    </div>
+                    <div class="upload-text">Arraste e solte sua planilha aqui</div>
+                    <div class="upload-hint">ou clique para selecionar</div>
+                    <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls, .csv">
+                    <button class="upload-button" id="selectFileBtn">
+                        <i class="fas fa-folder-open"></i> Selecionar Arquivo
+                    </button>
+                </div>
+                
+                <div class="file-info" id="fileInfo">
+                    <i class="fas fa-file-excel" style="color: var(--success-green); font-size: 1.5rem;"></i>
+                    <div>
+                        <div class="file-name" id="fileName">Nenhum arquivo selecionado</div>
+                        <div class="file-size" id="fileSize">-</div>
+                    </div>
+                    <button class="remove-file" id="removeFileBtn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Processando planilha...</p>
+                </div>
+                
+                <div class="sample-download">
+                    <a href="#" class="download-button" id="downloadSampleBtn">
+                        <i class="fas fa-download"></i> Baixar Modelo de Planilha
+                    </a>
+                </div>
+            </div>
+
+            <div class="result-section glass-card">
+                <h2><i class="fas fa-dice"></i> Resultado do Sorteio</h2>
+                <div class="result-input-container">
+                    <input type="number" class="result-input" min="1" max="60" id="num1" placeholder="01">
+                    <input type="number" class="result-input" min="1" max="60" id="num2" placeholder="02">
+                    <input type="number" class="result-input" min="1" max="60" id="num3" placeholder="03">
+                    <input type="number" class="result-input" min="1" max="60" id="num4" placeholder="04">
+                    <input type="number" class="result-input" min="1" max="60" id="num5" placeholder="05">
+                    <input type="number" class="result-input" min="1" max="60" id="num6" placeholder="06">
+                </div>
+                <button class="check-button" id="checkBtn" disabled>
+                    <i class="fas fa-check-circle"></i> Conferir Jogos
+                </button>
+                
+                <div class="winner-message" id="winnerMessage">
+                    🎉 Você está rico! 🎉
+                </div>
+            </div>
+
+            <div class="games-section glass-card">
+                <h2><i class="fas fa-list-ol"></i> Seus Jogos (<span id="gamesCount">0</span>)</h2>
+                <div class="games-table-container">
+                    <table id="gamesTable">
+                        <thead>
+                            <tr>
+                                <th>Jogo</th>
+                                <th>Números</th>
+                                <th>Acertos</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gamesBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
+                                    Nenhum jogo carregado. Faça o upload de uma planilha para começar.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="totalGames">0</div>
+                    <div class="stat-label">Total de Jogos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="totalHits">0</div>
+                    <div class="stat-label">Números Acertados</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="bestGame">0</div>
+                    <div class="stat-label">Maior Acerto</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="hit3">0</div>
+                    <div class="stat-label">Acertos com 3</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="hit4">0</div>
+                    <div class="stat-label">Acertos com 4</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="hit5">0</div>
+                    <div class="stat-label">Acertos com 5</div>
+                </div>
+            </div>
+
+            <footer>
+                <p>Conferência de Jogos da Loteria Federal - Desenvolvido para facilitar sua vida</p>
+                <p>Os resultados são apenas para fins de conferência. Consulte o site oficial para resultados oficiais.</p>
+<p> Sistema Criado por Ademir Costa - 2025 - Inteligência Artificial - DeepSeek </p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Dados dos jogos carregados da planilha
+        let gamesData = [];
+        
+        // Referências aos elementos do DOM
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const selectFileBtn = document.getElementById('selectFileBtn');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const removeFileBtn = document.getElementById('removeFileBtn');
+        const loading = document.getElementById('loading');
+        const gamesBody = document.getElementById('gamesBody');
+        const checkBtn = document.getElementById('checkBtn');
+        const winnerMessage = document.getElementById('winnerMessage');
+        const gamesCount = document.getElementById('gamesCount');
+        const downloadSampleBtn = document.getElementById('downloadSampleBtn');
+        
+        // Elementos de estatísticas
+        const totalGamesElement = document.getElementById('totalGames');
+        const totalHitsElement = document.getElementById('totalHits');
+        const bestGameElement = document.getElementById('bestGame');
+        const hit3Element = document.getElementById('hit3');
+        const hit4Element = document.getElementById('hit4');
+        const hit5Element = document.getElementById('hit5');
+
+        // Variáveis de estatísticas
+        let totalHits = 0;
+        let bestGame = 0;
+        let hit3Count = 0;
+        let hit4Count = 0;
+        let hit5Count = 0;
+        let hasWinner = false;
+
+        // ========== EVENT LISTENERS ==========
+        
+        // Clique no botão "Selecionar Arquivo"
+        selectFileBtn.addEventListener('click', () => {
+            console.log("Botão 'Selecionar Arquivo' clicado");
+            fileInput.click();
+        });
+
+        // Quando um arquivo é selecionado
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Remover arquivo
+        removeFileBtn.addEventListener('click', removeFile);
+        
+        // Botão para baixar modelo
+        downloadSampleBtn.addEventListener('click', downloadSampleSpreadsheet);
+        
+        // Botão para conferir jogos
+        checkBtn.addEventListener('click', checkGames);
+
+        // Permitir pressionar Enter para verificar
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                checkGames();
+            }
+        });
+
+        // ========== FUNÇÕES DE UPLOAD ==========
+        
+        // Drag and drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            uploadArea.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            uploadArea.classList.remove('dragover');
+        }
+
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                handleFiles(files);
+            }
+        }
+
+        function handleFileSelect(e) {
+            console.log("Arquivo selecionado:", e.target.files[0]?.name);
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (!files || files.length === 0) {
+                console.log("Nenhum arquivo selecionado");
+                return;
+            }
+            
+            const file = files[0];
+            console.log("Processando arquivo:", file.name);
+            
+            // Verificar se é um arquivo Excel
+            const validExtensions = ['.xlsx', '.xls', '.csv'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            
+            if (!validExtensions.includes(fileExtension)) {
+                alert('Por favor, selecione um arquivo Excel (.xlsx, .xls) ou CSV.');
+                console.log("Extensão inválida:", fileExtension);
+                return;
+            }
+            
+            // Atualizar informações do arquivo
+            updateFileInfo(file);
+            
+            // Processar o arquivo
+            processFile(file);
+        }
+
+        function updateFileInfo(file) {
+            console.log("Atualizando informações do arquivo:", file.name);
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.add('show');
+            checkBtn.disabled = false;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function removeFile() {
+            console.log("Removendo arquivo");
+            fileInput.value = '';
+            fileInfo.classList.remove('show');
+            gamesData = [];
+            updateGamesTable();
+            checkBtn.disabled = true;
+        }
+
+        function processFile(file) {
+            console.log("Processando arquivo:", file.name);
+            loading.classList.add('show');
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    console.log("Arquivo lido com sucesso");
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // Pegar a primeira planilha
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // Converter para JSON
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    console.log("Dados da planilha:", jsonData.length, "linhas");
+                    
+                    // Processar os dados
+                    processExcelData(jsonData);
+                    
+                    loading.classList.remove('show');
+                    
+                } catch (error) {
+                    console.error('Erro ao processar o arquivo:', error);
+                    alert('Erro ao processar o arquivo. Verifique se o formato está correto.');
+                    loading.classList.remove('show');
+                    removeFile();
+                }
+            };
+            
+            reader.onerror = function() {
+                console.error("Erro ao ler o arquivo");
+                alert('Erro ao ler o arquivo. Tente novamente.');
+                loading.classList.remove('show');
+                removeFile();
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        function processExcelData(data) {
+            console.log("Processando dados do Excel");
+            gamesData = [];
+            
+            // Filtrar linhas válidas (com pelo menos 6 números)
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                
+                // Ignorar linhas vazias ou com menos de 6 números
+                if (!row || row.length < 6) continue;
+                
+                // Filtrar apenas números válidos (entre 1 e 60)
+                const numbers = row.slice(0, 6)
+                    .map(num => {
+                        // Converter para número, se for string
+                        let n;
+                        if (typeof num === 'string') {
+                            // Remover espaços e caracteres não numéricos
+                            n = parseInt(num.trim().replace(/[^\d]/g, ''), 10);
+                        } else {
+                            n = num;
+                        }
+                        return isNaN(n) ? null : n;
+                    })
+                    .filter(n => n !== null && n >= 1 && n <= 60);
+                
+                // Se temos 6 números válidos, adicionar aos jogos
+                if (numbers.length === 6) {
+                    // Verificar se há números duplicados
+                    const uniqueNumbers = [...new Set(numbers)];
+                    if (uniqueNumbers.length === 6) {
+                        gamesData.push(numbers);
+                        console.log("Jogo adicionado:", numbers);
+                    }
+                }
+            }
+            
+            console.log("Total de jogos processados:", gamesData.length);
+            
+            // Atualizar a tabela com os jogos processados
+            updateGamesTable();
+            
+            if (gamesData.length === 0) {
+                alert('Nenhum jogo válido encontrado na planilha. Certifique-se de que cada linha tenha 6 números diferentes entre 1 e 60.');
+            }
+        }
+
+        // ========== FUNÇÕES DA TABELA ==========
+        
+        // Atualizar a tabela de jogos
+        function updateGamesTable() {
+            console.log("Atualizando tabela de jogos");
+            gamesBody.innerHTML = '';
+            gamesCount.textContent = gamesData.length;
+            totalGamesElement.textContent = gamesData.length;
+            
+            if (gamesData.length === 0) {
+                gamesBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
+                            Nenhum jogo carregado. Faça o upload de uma planilha para começar.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            gamesData.forEach((game, index) => {
+                const row = document.createElement('tr');
+                row.className = 'game-row';
+                
+                // Coluna do número do jogo
+                const gameNumberCell = document.createElement('td');
+                gameNumberCell.textContent = index + 1;
+                row.appendChild(gameNumberCell);
+                
+                // Coluna dos números
+                const numbersCell = document.createElement('td');
+                game.forEach(number => {
+                    const numberSpan = document.createElement('span');
+                    numberSpan.className = 'number-cell';
+                    numberSpan.textContent = number.toString().padStart(2, '0');
+                    numberSpan.id = `game-${index}-num-${number}`;
+                    numbersCell.appendChild(numberSpan);
+                });
+                row.appendChild(numbersCell);
+                
+                // Coluna de acertos
+                const hitsCell = document.createElement('td');
+                hitsCell.className = 'game-result';
+                hitsCell.id = `game-${index}-hits`;
+                hitsCell.textContent = '0';
+                row.appendChild(hitsCell);
+                
+                // Coluna de status
+                const statusCell = document.createElement('td');
+                statusCell.id = `game-${index}-status`;
+                statusCell.textContent = 'Aguardando...';
+                row.appendChild(statusCell);
+                
+                gamesBody.appendChild(row);
+            });
+            
+            // Resetar estatísticas
+            resetStats();
+            console.log("Tabela atualizada com", gamesData.length, "jogos");
+        }
+
+        // ========== FUNÇÕES DE CONFERÊNCIA ==========
+        
+        // Atualizar estatísticas
+        function updateStats() {
+            totalHitsElement.textContent = totalHits;
+            bestGameElement.textContent = bestGame;
+            hit3Element.textContent = hit3Count;
+            hit4Element.textContent = hit4Count;
+            hit5Element.textContent = hit5Count;
+        }
+
+        // Resetar estatísticas
+        function resetStats() {
+            totalHits = 0;
+            bestGame = 0;
+            hit3Count = 0;
+            hit4Count = 0;
+            hit5Count = 0;
+            hasWinner = false;
+            winnerMessage.classList.remove('show');
+        }
+
+        // Lançar confetes
+        function launchConfetti() {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        // Verificar jogos
+        function checkGames() {
+            console.log("Iniciando conferência de jogos");
+            
+            // Obter os números do sorteio
+            const resultNumbers = [];
+            for (let i = 1; i <= 6; i++) {
+                const num = parseInt(document.getElementById(`num${i}`).value);
+                if (isNaN(num) || num < 1 || num > 60) {
+                    alert(`Por favor, insira um número válido (1-60) para a posição ${i}`);
+                    return;
+                }
+                resultNumbers.push(num);
+            }
+            
+            // Verificar se há números duplicados
+            const uniqueNumbers = new Set(resultNumbers);
+            if (uniqueNumbers.size !== 6) {
+                alert("Por favor, insira 6 números diferentes.");
+                return;
+            }
+            
+            console.log("Números do sorteio:", resultNumbers);
+            console.log("Total de jogos para conferir:", gamesData.length);
+            
+            // Resetar estatísticas
+            resetStats();
+            
+            // Verificar cada jogo
+            gamesData.forEach((game, index) => {
+                let hits = 0;
+                
+                // Verificar cada número do jogo
+                game.forEach(number => {
+                    const numberElement = document.getElementById(`game-${index}-num-${number}`);
+                    
+                    // Resetar a cor do número
+                    if (numberElement) {
+                        numberElement.classList.remove('hit');
+                        
+                        // Verificar se o número está no resultado
+                        if (resultNumbers.includes(number)) {
+                            numberElement.classList.add('hit');
+                            hits++;
+                            totalHits++;
+                        }
+                    }
+                });
+                
+                // Atualizar contagem de acertos
+                const hitsElement = document.getElementById(`game-${index}-hits`);
+                const statusElement = document.getElementById(`game-${index}-status`);
+                
+                if (hitsElement && statusElement) {
+                    hitsElement.textContent = hits;
+                    hitsElement.className = 'game-result';
+                    
+                    // Atualizar status e estatísticas
+                    if (hits >= 3) {
+                        if (hits === 6) {
+                            hitsElement.classList.add('hit-6');
+                            statusElement.textContent = "GANHADOR!";
+                            statusElement.style.color = "#10b981";
+                            statusElement.style.fontWeight = "bold";
+                            hasWinner = true;
+                            console.log("Jogo", index + 1, "acertou 6 números!");
+                        } else if (hits === 5) {
+                            hitsElement.classList.add('hit-5');
+                            statusElement.textContent = "5 Acertos!";
+                            statusElement.style.color = "#ef4444";
+                            hit5Count++;
+                        } else if (hits === 4) {
+                            hitsElement.classList.add('hit-4');
+                            statusElement.textContent = "4 Acertos!";
+                            statusElement.style.color = "#f97316";
+                            hit4Count++;
+                        } else if (hits === 3) {
+                            hitsElement.classList.add('hit-3');
+                            statusElement.textContent = "3 Acertos!";
+                            statusElement.style.color = "#f59e0b";
+                            hit3Count++;
+                        }
+                        
+                        // Atualizar melhor jogo
+                        if (hits > bestGame) {
+                            bestGame = hits;
+                        }
+                        
+                        // Lançar confetes para 3, 4 ou 5 acertos
+                        if (hits >= 3 && hits <= 5) {
+                            setTimeout(() => launchConfetti(), index * 100);
+                        }
+                    } else {
+                        statusElement.textContent = hits === 0 ? "Nenhum acerto" : `${hits} acerto${hits > 1 ? 's' : ''}`;
+                        statusElement.style.color = "#6b7280";
+                    }
+                }
+            });
+            
+            // Mostrar mensagem de ganhador se houver acerto de 6 números
+            if (hasWinner) {
+                winnerMessage.classList.add('show');
+                console.log("Parabéns! Você acertou 6 números!");
+                
+                // Lançar confetes especiais para o ganhador
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 300,
+                        spread: 100,
+                        origin: { y: 0.6 }
+                    });
+                    
+                    // Efeito adicional de confetes
+                    setTimeout(() => {
+                        confetti({
+                            particleCount: 200,
+                            angle: 60,
+                            spread: 80,
+                            origin: { x: 0 }
+                        });
+                        
+                        confetti({
+                            particleCount: 200,
+                            angle: 120,
+                            spread: 80,
+                            origin: { x: 1 }
+                        });
+                    }, 300);
+                }, 500);
+            }
+            
+            // Atualizar estatísticas
+            updateStats();
+            console.log("Conferência concluída. Total de acertos:", totalHits);
+        }
+
+        // ========== FUNÇÕES AUXILIARES ==========
+        
+        // Preencher automaticamente com números de exemplo
+        function fillExampleNumbers() {
+            // Gerar 6 números aleatórios únicos
+            const exampleNumbers = [];
+            while (exampleNumbers.length < 6) {
+                const num = Math.floor(Math.random() * 60) + 1;
+                if (!exampleNumbers.includes(num)) {
+                    exampleNumbers.push(num);
+                }
+            }
+            
+            // Preencher os campos
+            exampleNumbers.forEach((num, index) => {
+                document.getElementById(`num${index + 1}`).value = num;
+            });
+            
+            console.log("Números de exemplo preenchidos:", exampleNumbers);
+        }
+
+        // Criar e baixar modelo de planilha
+        function downloadSampleSpreadsheet(e) {
+            e.preventDefault();
+            console.log("Baixando modelo de planilha");
+            
+            // Criar dados de exemplo
+            const sampleData = [
+                ['N1', 'N2', 'N3', 'N4', 'N5', 'N6'],
+                [7, 12, 23, 34, 45, 56],
+                [3, 15, 22, 37, 41, 59],
+                [8, 19, 26, 33, 47, 58],
+                [5, 11, 24, 36, 49, 55],
+                [9, 17, 28, 35, 42, 53],
+                [2, 14, 21, 39, 44, 57],
+                [4, 16, 27, 32, 46, 54],
+                [6, 13, 25, 38, 43, 52],
+                [10, 18, 29, 31, 48, 51]
+            ];
+            
+            // Criar planilha
+            const ws = XLSX.utils.aoa_to_sheet(sampleData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Jogos");
+            
+            // Gerar arquivo
+            XLSX.writeFile(wb, "modelo_jogos_loteria.xlsx");
+            
+            console.log("Modelo de planilha baixado");
+        }
+
+        // ========== INICIALIZAÇÃO ==========
+        
+        // Inicializar a página
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log("Página carregada");
+            
+            // Preencher números de exemplo
+            fillExampleNumbers();
+            
+            // Adicionar evento para cada campo de entrada para avançar automaticamente
+            for (let i = 1; i <= 6; i++) {
+                const input = document.getElementById(`num${i}`);
+                input.addEventListener('input', function() {
+                    if (this.value.length >= 2 && i < 6) {
+                        document.getElementById(`num${i + 1}`).focus();
+                    }
+                });
+            }
+            
+            console.log("Sistema inicializado e pronto para uso");
+        });
+    </script>
+</body>
+</html>
