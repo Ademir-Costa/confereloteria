@@ -39,7 +39,7 @@
 
         .container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -68,12 +68,6 @@
         h2 {
             font-size: 1.8rem;
             margin-bottom: 20px;
-            color: white;
-        }
-
-        h3 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
             color: white;
         }
 
@@ -199,6 +193,12 @@
             transform: translateY(0);
         }
 
+        .upload-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .result-section {
             display: flex;
             flex-direction: column;
@@ -272,7 +272,7 @@
 
         .games-table-container {
             overflow-x: auto;
-            max-height: 500px;
+            max-height: 600px;
             overflow-y: auto;
             border-radius: 10px;
         }
@@ -319,6 +319,10 @@
             margin: 2px;
             font-weight: bold;
             transition: all 0.3s;
+        }
+
+        .number-cell:hover {
+            transform: scale(1.05);
         }
 
         .number-cell.hit {
@@ -456,6 +460,38 @@
             transform: translateY(-2px);
         }
 
+        .info-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+
+        .numbers-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .numbers-info p {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .color-sample {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -514,16 +550,18 @@
         <div class="glass-card">
             <header>
                 <h1><i class="fas fa-ticket-alt"></i> Conferência de Jogos</h1>
-                <p class="subtitle">Loteria Federal - Carregue sua planilha e confira seus jogos</p>
+                <p class="subtitle">Loteria Federal - Sistema de conferência de 6 a 20 números por jogo</p>
             </header>
 
             <div class="instructions">
-                <h3><i class="fas fa-info-circle"></i> Instruções:</h3>
-                <p>1. Faça o download do modelo de planilha ou use a sua própria</p>
-                <p>2. Faça o upload da planilha com seus jogos (6 números por linha)</p>
-                <p>3. Digite os 6 números do sorteio nos campos abaixo</p>
-                <p>4. Clique em "Conferir Jogos" para verificar seus bilhetes</p>
-                <p>5. Números acertados aparecerão em verde com animações especiais</p>
+                <h3><i class="fas fa-info-circle"></i> Como funciona:</h3>
+                <p><strong>1.</strong> Faça upload de uma planilha com seus jogos (6 a 20 números por linha)</p>
+                <p><strong>2.</strong> Digite os 6 números sorteados</p>
+                <p><strong>3.</strong> Clique em "Conferir Jogos" para verificar todos os acertos</p>
+                <p><strong>Observação:</strong> Todos os números de cada jogo serão conferidos contra o resultado oficial.</p>
+             
+            </div>
+            
             </div>
 
             <div class="upload-section glass-card">
@@ -534,7 +572,7 @@
                         <i class="fas fa-file-excel"></i>
                     </div>
                     <div class="upload-text">Arraste e solte sua planilha aqui</div>
-                    <div class="upload-hint">ou clique para selecionar</div>
+                    <div class="upload-hint">Suporta de 6 a 20 números por linha - Todos serão conferidos</div>
                     <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls, .csv">
                     <button class="upload-button" id="selectFileBtn">
                         <i class="fas fa-folder-open"></i> Selecionar Arquivo
@@ -565,7 +603,7 @@
             </div>
 
             <div class="result-section glass-card">
-                <h2><i class="fas fa-dice"></i> Resultado do Sorteio</h2>
+                <h2><i class="fas fa-dice"></i> Resultado Oficial do Sorteio <span class="info-badge">6 números</span></h2>
                 <div class="result-input-container">
                     <input type="number" class="result-input" min="1" max="60" id="num1" placeholder="01">
                     <input type="number" class="result-input" min="1" max="60" id="num2" placeholder="02">
@@ -579,18 +617,23 @@
                 </button>
                 
                 <div class="winner-message" id="winnerMessage">
-                    🎉 Você está rico! 🎉
+                    🎉 Parabéns! Você acertou 6 números! 🎉
                 </div>
             </div>
 
             <div class="games-section glass-card">
                 <h2><i class="fas fa-list-ol"></i> Seus Jogos (<span id="gamesCount">0</span>)</h2>
+                <div class="numbers-info">
+                    <p><span class="color-sample" style="background-color: var(--primary-blue);"></span> <strong>Números do jogo:</strong> Todos os números da sua aposta (6 a 20 por linha)</p>
+                    <p><span class="color-sample" style="background-color: var(--success-green);"></span> <strong>Acertos:</strong> Números que coincidem com o resultado oficial</p>
+                    <p><strong>Instrução:</strong> Todos os números de cada jogo serão conferidos automaticamente.</p>
+                </div>
                 <div class="games-table-container">
                     <table id="gamesTable">
                         <thead>
                             <tr>
                                 <th>Jogo</th>
-                                <th>Números</th>
+                                <th>Números (6 a 20 por jogo)</th>
                                 <th>Acertos</th>
                                 <th>Status</th>
                             </tr>
@@ -613,7 +656,7 @@
                 </div>
                 <div class="stat-box">
                     <div class="stat-value" id="totalHits">0</div>
-                    <div class="stat-label">Números Acertados</div>
+                    <div class="stat-label">Total de Acertos</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value" id="bestGame">0</div>
@@ -631,12 +674,18 @@
                     <div class="stat-value" id="hit5">0</div>
                     <div class="stat-label">Acertos com 5</div>
                 </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="hit6">0</div>
+                    <div class="stat-label">Acertos com 6</div>
+                </div>
             </div>
 
             <footer>
-                <p>Conferência de Jogos da Loteria Federal - Desenvolvido para facilitar sua vida</p>
+                <p>Conferência de Jogos da Loteria Federal - Sistema verifica todos os números de 6 a 20 por jogo</p>
                 <p>Os resultados são apenas para fins de conferência. Consulte o site oficial para resultados oficiais.</p>
-<p> Sistema Criado por Ademir Costa - 2025 - Inteligência Artificial - DeepSeek </p>
+             <p><strong>Direito Reservado:</strong>Ademir C Costa - 2025 - Feito com IA DeepSeek</p>
+            </div>
+            
             </footer>
         </div>
     </div>
@@ -667,6 +716,7 @@
         const hit3Element = document.getElementById('hit3');
         const hit4Element = document.getElementById('hit4');
         const hit5Element = document.getElementById('hit5');
+        const hit6Element = document.getElementById('hit6');
 
         // Variáveis de estatísticas
         let totalHits = 0;
@@ -674,11 +724,12 @@
         let hit3Count = 0;
         let hit4Count = 0;
         let hit5Count = 0;
+        let hit6Count = 0;
         let hasWinner = false;
 
         // ========== EVENT LISTENERS ==========
         
-        // Clique no botão "Selecionar Arquivo"
+        // Clique no botão "Selecionar Arquivo" - este é o único botão
         selectFileBtn.addEventListener('click', () => {
             console.log("Botão 'Selecionar Arquivo' clicado");
             fileInput.click();
@@ -705,7 +756,7 @@
 
         // ========== FUNÇÕES DE UPLOAD ==========
         
-        // Drag and drop
+        // Drag and drop para a área de upload
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             uploadArea.addEventListener(eventName, preventDefaults, false);
         });
@@ -779,7 +830,7 @@
             fileName.textContent = file.name;
             fileSize.textContent = formatFileSize(file.size);
             fileInfo.classList.add('show');
-            checkBtn.disabled = false;
+            checkBtn.disabled = false; // Habilitar botão de conferir
         }
 
         function formatFileSize(bytes) {
@@ -845,39 +896,51 @@
         }
 
         function processExcelData(data) {
-            console.log("Processando dados do Excel");
+            console.log("Processando dados do Excel (6 a 20 números por linha)");
             gamesData = [];
             
             // Filtrar linhas válidas (com pelo menos 6 números)
             for (let i = 0; i < data.length; i++) {
                 const row = data[i];
                 
-                // Ignorar linhas vazias ou com menos de 6 números
-                if (!row || row.length < 6) continue;
+                // Ignorar linhas vazias
+                if (!row || row.length === 0) continue;
                 
-                // Filtrar apenas números válidos (entre 1 e 60)
-                const numbers = row.slice(0, 6)
-                    .map(num => {
-                        // Converter para número, se for string
-                        let n;
-                        if (typeof num === 'string') {
-                            // Remover espaços e caracteres não numéricos
-                            n = parseInt(num.trim().replace(/[^\d]/g, ''), 10);
-                        } else {
-                            n = num;
-                        }
-                        return isNaN(n) ? null : n;
-                    })
-                    .filter(n => n !== null && n >= 1 && n <= 60);
+                // Processar até 20 números
+                const numbers = [];
+                for (let j = 0; j < Math.min(row.length, 20); j++) {
+                    const cellValue = row[j];
+                    
+                    // Converter para número, se for string
+                    let n;
+                    if (typeof cellValue === 'string') {
+                        // Remover espaços e caracteres não numéricos
+                        n = parseInt(cellValue.trim().replace(/[^\d]/g, ''), 10);
+                    } else {
+                        n = cellValue;
+                    }
+                    
+                    // Adicionar apenas se for número válido entre 1 e 60
+                    if (!isNaN(n) && n >= 1 && n <= 60) {
+                        numbers.push(n);
+                    }
+                }
                 
-                // Se temos 6 números válidos, adicionar aos jogos
-                if (numbers.length === 6) {
+                // Se temos pelo menos 6 números válidos, adicionar aos jogos
+                if (numbers.length >= 6) {
                     // Verificar se há números duplicados
                     const uniqueNumbers = [...new Set(numbers)];
-                    if (uniqueNumbers.length === 6) {
+                    
+                    // Só aceitar se todos os números forem únicos
+                    if (uniqueNumbers.length === numbers.length) {
                         gamesData.push(numbers);
-                        console.log("Jogo adicionado:", numbers);
+                        console.log(`Jogo ${gamesData.length} adicionado: ${numbers.length} números`);
+                    } else {
+                        console.log(`Jogo na linha ${i + 1} ignorado: contém números duplicados`);
+                        alert(`Linha ${i + 1} da planilha contém números duplicados. Todos os números devem ser únicos.`);
                     }
+                } else {
+                    console.log(`Linha ${i + 1} ignorada: precisa ter pelo menos 6 números, tem ${numbers.length}`);
                 }
             }
             
@@ -887,7 +950,7 @@
             updateGamesTable();
             
             if (gamesData.length === 0) {
-                alert('Nenhum jogo válido encontrado na planilha. Certifique-se de que cada linha tenha 6 números diferentes entre 1 e 60.');
+                alert('Nenhum jogo válido encontrado na planilha. Certifique-se de que cada linha tenha pelo menos 6 números únicos entre 1 e 60.');
             }
         }
 
@@ -922,13 +985,35 @@
                 
                 // Coluna dos números
                 const numbersCell = document.createElement('td');
-                game.forEach(number => {
+                
+                // Mostrar todos os números (até 20)
+                game.forEach((number, numIndex) => {
                     const numberSpan = document.createElement('span');
                     numberSpan.className = 'number-cell';
                     numberSpan.textContent = number.toString().padStart(2, '0');
-                    numberSpan.id = `game-${index}-num-${number}`;
+                    numberSpan.id = `game-${index}-num-${numIndex}`;
+                    numberSpan.dataset.gameIndex = index;
+                    numberSpan.dataset.numIndex = numIndex;
+                    numberSpan.dataset.number = number;
+                    
                     numbersCell.appendChild(numberSpan);
+                    
+                    // Adicionar espaço após cada 10 números para melhor visualização
+                    if ((numIndex + 1) % 10 === 0 && numIndex !== game.length - 1) {
+                        const lineBreak = document.createElement('div');
+                        lineBreak.style.height = '5px';
+                        numbersCell.appendChild(lineBreak);
+                    }
                 });
+                
+                // Adicionar contador de números
+                const counter = document.createElement('div');
+                counter.style.marginTop = '10px';
+                counter.style.fontSize = '0.9rem';
+                counter.style.color = '#666';
+                counter.textContent = `Total: ${game.length} números`;
+                numbersCell.appendChild(counter);
+                
                 row.appendChild(numbersCell);
                 
                 // Coluna de acertos
@@ -941,7 +1026,8 @@
                 // Coluna de status
                 const statusCell = document.createElement('td');
                 statusCell.id = `game-${index}-status`;
-                statusCell.textContent = 'Aguardando...';
+                statusCell.textContent = 'Aguardando conferência';
+                statusCell.style.color = "#6b7280";
                 row.appendChild(statusCell);
                 
                 gamesBody.appendChild(row);
@@ -961,6 +1047,7 @@
             hit3Element.textContent = hit3Count;
             hit4Element.textContent = hit4Count;
             hit5Element.textContent = hit5Count;
+            hit6Element.textContent = hit6Count;
         }
 
         // Resetar estatísticas
@@ -970,6 +1057,7 @@
             hit3Count = 0;
             hit4Count = 0;
             hit5Count = 0;
+            hit6Count = 0;
             hasWinner = false;
             winnerMessage.classList.remove('show');
         }
@@ -987,7 +1075,7 @@
         function checkGames() {
             console.log("Iniciando conferência de jogos");
             
-            // Obter os números do sorteio
+            // Obter os números do sorteio oficial
             const resultNumbers = [];
             for (let i = 1; i <= 6; i++) {
                 const num = parseInt(document.getElementById(`num${i}`).value);
@@ -1005,7 +1093,7 @@
                 return;
             }
             
-            console.log("Números do sorteio:", resultNumbers);
+            console.log("Números do sorteio oficial:", resultNumbers);
             console.log("Total de jogos para conferir:", gamesData.length);
             
             // Resetar estatísticas
@@ -1015,20 +1103,28 @@
             gamesData.forEach((game, index) => {
                 let hits = 0;
                 
-                // Verificar cada número do jogo
-                game.forEach(number => {
-                    const numberElement = document.getElementById(`game-${index}-num-${number}`);
-                    
-                    // Resetar a cor do número
+                // Resetar todos os números (remover classe 'hit')
+                game.forEach((_, numIndex) => {
+                    const numberElement = document.getElementById(`game-${index}-num-${numIndex}`);
                     if (numberElement) {
                         numberElement.classList.remove('hit');
+                    }
+                });
+                
+                // Verificar todos os números do jogo
+                game.forEach(number => {
+                    // Verificar se o número está no resultado oficial
+                    if (resultNumbers.includes(number)) {
+                        // Encontrar o elemento e marcar como acerto
+                        const numIndex = game.indexOf(number);
+                        const numberElement = document.getElementById(`game-${index}-num-${numIndex}`);
                         
-                        // Verificar se o número está no resultado
-                        if (resultNumbers.includes(number)) {
+                        if (numberElement) {
                             numberElement.classList.add('hit');
-                            hits++;
-                            totalHits++;
                         }
+                        
+                        hits++;
+                        totalHits++;
                     }
                 });
                 
@@ -1044,11 +1140,12 @@
                     if (hits >= 3) {
                         if (hits === 6) {
                             hitsElement.classList.add('hit-6');
-                            statusElement.textContent = "GANHADOR!";
+                            statusElement.textContent = "GANHADOR! 🎉";
                             statusElement.style.color = "#10b981";
                             statusElement.style.fontWeight = "bold";
                             hasWinner = true;
-                            console.log("Jogo", index + 1, "acertou 6 números!");
+                            hit6Count++;
+                            console.log(`Jogo ${index + 1} acertou 6 números!`);
                         } else if (hits === 5) {
                             hitsElement.classList.add('hit-5');
                             statusElement.textContent = "5 Acertos!";
@@ -1143,20 +1240,22 @@
         // Criar e baixar modelo de planilha
         function downloadSampleSpreadsheet(e) {
             e.preventDefault();
-            console.log("Baixando modelo de planilha");
+            console.log("Baixando modelo de planilha com 6 a 20 números");
             
-            // Criar dados de exemplo
+            // Criar dados de exemplo com 6 a 20 números por linha
             const sampleData = [
-                ['N1', 'N2', 'N3', 'N4', 'N5', 'N6'],
-                [7, 12, 23, 34, 45, 56],
-                [3, 15, 22, 37, 41, 59],
-                [8, 19, 26, 33, 47, 58],
-                [5, 11, 24, 36, 49, 55],
-                [9, 17, 28, 35, 42, 53],
-                [2, 14, 21, 39, 44, 57],
-                [4, 16, 27, 32, 46, 54],
-                [6, 13, 25, 38, 43, 52],
-                [10, 18, 29, 31, 48, 51]
+                ['N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7', 'N8', 'N9', 'N10', 'N11', 'N12', 'N13', 'N14', 'N15', 'N16', 'N17', 'N18', 'N19', 'N20'],
+                [7, 12, 23, 34, 45, 56, 8, 19, 27, 38, 49, 50, 11, 22, 33, 44, 55, 60, 9, 18],
+                [3, 15, 22, 37, 41, 59, 4, 16, 28, 39, 42, 53, 10, 21, 32, 43, 54, 1, 14, 25],
+                [8, 19, 26, 33, 47, 58, 5, 17, 29, 40, 51, 2, 13, 24, 35, 46, 57, 6, 20, 30],
+                [5, 11, 24, 36, 49, 55, 9, 18, 27, 38, 47, 56, 3, 14, 25, 39, 48, 57, 2, 13],
+                [9, 17, 28, 35, 42, 53, 1, 12, 23, 34, 45, 56, 7, 18, 29, 40, 51, 4, 15, 26],
+                [2, 14, 21, 39, 44, 57, 6, 16, 27, 38, 49, 50, 8, 19, 30, 41, 52, 3, 10, 22],
+                [4, 16, 27, 32, 46, 54, 10, 20, 31, 42, 53, 1, 12, 23, 34, 45, 56, 7, 18, 29],
+                [6, 13, 25, 38, 43, 52, 11, 21, 32, 43, 54, 5, 16, 27, 38, 49, 50, 8, 19, 30],
+                [10, 18, 29, 31, 48, 51, 2, 12, 24, 35, 46, 57, 9, 20, 31, 42, 53, 4, 15, 26],
+                [1, 8, 15, 22, 29, 36, 43, 50, 57, 4, 11, 18, 25, 32, 39, 46, 53, 60, 7, 14],
+                [12, 19, 26, 33, 40, 47, 54, 2, 9, 16, 23, 30, 37, 44, 51, 58, 5, 13, 21, 28]
             ];
             
             // Criar planilha
@@ -1165,16 +1264,16 @@
             XLSX.utils.book_append_sheet(wb, ws, "Jogos");
             
             // Gerar arquivo
-            XLSX.writeFile(wb, "modelo_jogos_loteria.xlsx");
+            XLSX.writeFile(wb, "modelo_jogos_loteria_aposta.xlsx");
             
-            console.log("Modelo de planilha baixado");
+            console.log("Modelo de planilha baixado (6 a 20 números por linha)");
         }
 
         // ========== INICIALIZAÇÃO ==========
         
         // Inicializar a página
         window.addEventListener('DOMContentLoaded', () => {
-            console.log("Página carregada");
+            console.log("Página carregada - Sistema de conferência de jogos");
             
             // Preencher números de exemplo
             fillExampleNumbers();
