@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Jogos Mega-Sena</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1d4ed8);
+        }
+        .container {
+            width: 420px;
+            padding: 24px 28px;
+            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.45);          /* azul escuro translúcido */
+            border: 1px solid rgba(191, 219, 254, 0.4);  /* azul claro */
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            color: #e5f0ff;
+        }
+        h1 {
+            margin: 0 0 10px;
+            font-size: 20px;
+            text-align: center;
+        }
+        p.sub {
+            margin: 0 0 18px;
+            font-size: 13px;
+            text-align: center;
+            color: #bfdbfe;
+        }
+        label {
+            display: block;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+        input[type="number"] {
+            width: 90px;
+            padding: 6px 8px;
+            margin-top: 4px;
+            border-radius: 10px;
+            border: 1px solid rgba(191, 219, 254, 0.6);
+            background: rgba(15, 23, 42, 0.7);
+            color: #e5f0ff;
+            outline: none;
+        }
+        input[type="number"]:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.8);
+        }
+        .row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .btn-area {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 18px;
+        }
+        button {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0b1120;
+            background: linear-gradient(135deg, #60a5fa, #2563eb);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.6);
+        }
+        button.secondary {
+            background: rgba(15, 23, 42, 0.9);
+            color: #bfdbfe;
+            border: 1px solid rgba(148, 163, 184, 0.8);
+            box-shadow: none;
+        }
+        button:hover {
+            filter: brightness(1.05);
+        }
+        .erro {
+            color: #fecaca;
+            font-size: 12px;
+            margin-top: 8px;
+            min-height: 16px;
+        }
+        .resultado {
+            margin-top: 16px;
+            padding: 10px;
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px dashed rgba(148, 163, 184, 0.8);
+            font-family: "Fira Code", monospace;
+            font-size: 13px;
+            max-height: 220px;
+            overflow-y: auto;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Jogos Mega-Sena</h1>
+    <p class="sub">3 números fixos digitados + 3 números aleatórios (1–60) por jogo.</p>
+
+    <div class="row">
+        <label>
+            Número 1
+            <input type="number" id="n1" min="1" max="60">
+        </label>
+        <label>
+            Número 2
+            <input type="number" id="n2" min="1" max="60">
+        </label>
+        <label>
+            Número 3
+            <input type="number" id="n3" min="1" max="60">
+        </label>
+    </div>
+
+    <label style="margin-top: 10px;">
+        Quantos jogos?
+        <input type="number" id="qtdJogos" min="1" value="10">
+    </label>
+
+    <div class="btn-area">
+        <button onclick="gerar()">Gerar jogos</button>
+        <button class="secondary" onclick="baixarXLS()">Baixar XLS</button>
+    </div>
+
+    <div id="erro" class="erro"></div>
+    <div id="saida" class="resultado"></div>
+</div>
+
+<script>
+    let jogosGerados = []; // guarda o último conjunto de jogos para exportar
+
+    function numeroAleatorio(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // 3 fixos + 3 aleatórios, sem repetição
+    function gerarJogo(fixos) {
+        const jogo = [...fixos];
+        while (jogo.length < 6) {
+            const n = numeroAleatorio(1, 60);
+            if (!jogo.includes(n)) {
+                jogo.push(n);
+            }
+        }
+        jogo.sort((a, b) => a - b);
+        return jogo;
+    }
+
+    function gerar() {
+        const erro = document.getElementById('erro');
+        const saida = document.getElementById('saida');
+        erro.textContent = '';
+        saida.textContent = '';
+
+        let n1 = parseInt(document.getElementById('n1').value, 10);
+        let n2 = parseInt(document.getElementById('n2').value, 10);
+        let n3 = parseInt(document.getElementById('n3').value, 10);
+        let qtd = parseInt(document.getElementById('qtdJogos').value, 10);
+
+        if (isNaN(n1) || isNaN(n2) || isNaN(n3)) {
+            erro.textContent = 'Digite os 3 números fixos.';
+            jogosGerados = [];
+            return;
+        }
+        if (n1 < 1 || n1 > 60 || n2 < 1 || n2 > 60 || n3 < 1 || n3 > 60) {
+            erro.textContent = 'Todos os números devem estar entre 1 e 60.';
+            jogosGerados = [];
+            return;
+        }
+        if (n1 === n2 || n1 === n3 || n2 === n3) {
+            erro.textContent = 'Os 3 números devem ser diferentes entre si.';
+            jogosGerados = [];
+            return;
+        }
+        if (isNaN(qtd) || qtd < 1) {
+            erro.textContent = 'Informe uma quantidade de jogos válida.';
+            jogosGerados = [];
+            return;
+        }
+
+        const fixos = [n1, n2, n3].sort((a, b) => a - b);
+
+        const jogosSet = new Set();
+        const jogos = [];
+        let tentativas = 0;
+        const maxTentativas = qtd * 20;
+
+        while (jogos.length < qtd && tentativas < maxTentativas) {
+            const jogo = gerarJogo(fixos);
+            const chave = jogo.join('-');
+            if (!jogosSet.has(chave)) {
+                jogosSet.add(chave);
+                jogos.push(jogo);
+            }
+            tentativas++;
+        }
+
+        jogosGerados = jogos;
+
+        let texto = '';
+        jogos.forEach((jogo) => {
+            const linha = jogo
+                .map(n => n.toString().padStart(2, '0'))
+                .join(', ');
+            texto += linha + '\n';           // sem número do jogo
+        });
+
+        saida.textContent = texto || 'Nenhum jogo gerado.';
+    }
+
+    // gera arquivo .xls (CSV simples lido pelo Excel), 1 jogo por linha
+    function baixarXLS() {
+        const erro = document.getElementById('erro');
+
+        if (!jogosGerados || jogosGerados.length === 0) {
+            erro.textContent = 'Gere os jogos antes de baixar o XLS.';
+            return;
+        }
+
+        // monta CSV: cada linha = 6 números separados por vírgula
+        let csv = '';
+        jogosGerados.forEach(jogo => {
+            csv += jogo.join(',') + '\r\n';
+        });
+
+        const blob = new Blob([csv], {
+            type: 'application/vnd.ms-excel;charset=utf-8;'
+        }); // Excel abre CSV normalmente [web:56][web:66]
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'jogos-megasena.xls';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+</script>
+</body>
+</html>
